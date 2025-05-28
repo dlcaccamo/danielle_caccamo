@@ -1,0 +1,115 @@
+# STAT 440 Statistical Data Management
+
+## Week 13 Lab
+
+### Only the .Rmd file must be submitted by the end of class. Any lab submitted after that time will not be accepted; resulting in 0 points earned.
+
+#### This lab file should be saved as lab02-week13-sX-fri-netid.Rmd in the labs directory in your individual student repo (on the main branch), where you replace "netid" with your netid.
+
+------------------------------------------------------------------------
+
+**#1**
+
+**Problem:** Determine whether the statement below is TRUE or FALSE, then create an R vector named **prob01** with the assigned logical value of TRUE or FALSE. For example, `prob01 <- TRUE`. This R code should be written in the code chunk of the **Answer** section below. This code chunk should be executable and able to be evaluated.
+
+**Statement**: The `renderTable()` is a type of reactivity for creating data tables in a Shiny app.
+
+**Answer:**
+
+```{r}
+prob01 <- TRUE
+```
+
+------------------------------------------------------------------------
+
+**#2**
+
+**Problem:** Choose only one of the letters that represents the most correct choice. Then, create an R vector named **prob02** with the letter(s) chosen in quotes. For example, `prob02 <- "f"`. This R code should be written in the code chunk of the **Answer** section below. This code chunk should be executable and able to be evaluated.
+
+**Question**: Which of the following are not input designs available to use in a Shiny app?\
+a. sliderInput()
+
+b.  uiOutput()
+
+c.  textInput()
+
+d.  selectInput()
+
+**Answer:**
+
+```{r}
+prob02 <- "b"
+```
+
+------------------------------------------------------------------------
+
+**#3**
+
+**Problem:** Using R, import the Urbana Incidents and Arrests Data using the URL <https://uofi.box.com/shared/static/l70pm29neg8o3jjdvu79x4n46if1php9.csv>, and assign the imported dataset as the name **prob03**. The structure (`str()`) the data should match the following data description.
+
+**Data Description for Urbana Incidents and Arrests Data**: The contains 330446 observations and 15 columns. The observations are incidents in which the officers of the Urbana Police Department responded. Some incidents are labeled as arrests, in which someone is arrested, while other incidents are labeled as incidents. The columns are: incident_number, date_occurred, time_occurred, year_occurred, month_occurred, all_incident_crimes, latitude, longitude, date_of_arrest, year_of_arrest, month_of_arrest, arrestee_race, arrest_resolution, all_arrest_crimes, arrest_or_incident. The columns with arrest information have the string "arrest" in the name. All other columns are for incident information. The original source is the City of Urbana.
+
+**Answer:**
+
+```{r}
+library(tidyverse)
+prob03 <- read_csv("https://uofi.box.com/shared/static/l70pm29neg8o3jjdvu79x4n46if1php9.csv", 
+    col_types = cols(date_occurred = col_date(format = "%Y-%m-%d"), 
+        time_occurred = col_time(format = "%H:%M:%S"), 
+        date_of_arrest = col_date(format = "%Y-%m-%d")))
+```
+
+------------------------------------------------------------------------
+
+**#4**
+
+**Problem:** Using R and the data in prob03 in the previous problem, create a Shiny app based on the following requirement(s). Apps will be graded by Instructor, but need to be reproducible.
+
+**Requirements:**
+
+-   Title: "Total Number of Crimes Among those Arrested in Urbana"
+-   Two inputs:
+    -   selectInput to choose year one of year occurred (1988-2023)
+    -   selectInput to choose year two of year occurred (1988-2023)
+-   One output:
+    -   a bar plot displaying the total of number of crimes (based on all_arrest_crimes) among those who were arrested per year one in orange color and total of number of crimes (based on all_arrest_crimes) among those who were arrested per year two in blue color.
+
+**Answer:**
+
+```{r}
+library(ggplot2)
+library(shiny)
+df <- prob03 %>%
+  group_by(year_occurred) %>%
+  filter(arrest_or_incident == "Arrest")%>%
+  summarise(n = n())%>%
+  filter(year_occurred >= 1988) 
+
+ui <- fluidPage(
+  titlePanel("Total Number of Crimes Among those Arrested in Urbana"),
+  
+  selectInput(inputId = "year_one",
+              label = "Select year one",
+              choices = unique(df$year_occurred)),
+  
+  selectInput(inputId = "year_two",
+              label = "Select year two",
+              choices = rev(unique(df$year_occurred))),
+  
+  plotOutput("distPlot")
+)
+
+server <- function(input, output) {
+  output$distPlot <- renderPlot({
+    df1 <- df %>% filter(year_occurred == input$year_one)
+    df2 <- df %>% filter(year_occurred == input$year_two)
+    
+ ggplot() +
+      geom_col(mapping = aes(x = factor(df1$year_occurred), y = df1$n), fill = "orange") + 
+      geom_col(mapping = aes(x = factor(df2$year_occurred), y = df2$n), fill = "blue") +
+   labs(x = "Year", y = "Number of arrests")
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
