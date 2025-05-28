@@ -1,0 +1,153 @@
+# STAT 440 Statistical Data Management
+
+## Week 12 Lab
+
+### Only the .Rmd file must be submitted by the end of class. Any lab submitted after that time will not be accepted; resulting in 0 points earned.
+
+#### This lab file should be saved as lab02-week12-sX-fri-netid.Rmd in the labs directory in your individual student repo (on the main branch), where you replace "netid" with your netid.
+
+------------------------------------------------------------------------
+
+**#1**
+
+**Problem:** Determine whether the statement below is TRUE or FALSE, then create an R vector named **prob01** with the assigned logical value of TRUE or FALSE. For example, `prob01 <- TRUE`. This R code should be written in the code chunk of the **Answer** section below. This code chunk should be executable and able to be evaluated.
+
+**Statement**: The creative method of reframing encourages one to think of lateral solutions.
+
+**Answer:**
+
+```{r}
+prob01 <- TRUE
+```
+
+------------------------------------------------------------------------
+
+**#2**
+
+**Problem:** Using the method of inviting exotic associations and the prompt below, create an R list named **prob02** that contains at least two answers as character formatted components of the list that answers the question. For example, `prob02 <- list("answer01", "answer02")`: 
+
+**Prompt:** A yo-yo.
+
+**Question:** Suppose gender is a social construct, and suppose that American names are always gendered. What new names can you create that are purely lacking of gender? 
+
+The prob02 list must be contain at least two new non-gendered names in character format.
+
+**Answer:**
+
+```{r}
+prob02 <- list("Hamburger", "Boomerang")
+
+```
+
+------------------------------------------------------------------------
+
+**#3**
+
+**Problem:** Using R's tidyverse:\
+1. import <https://uofi.box.com/shared/static/yiuk2qvdcuf2ax7k8i5bc1xia2ytsbua.txt>, rename the columns such that "name" is the first column, "assigned_sex" is the second column, and "relative_frequency" is the third column, and mutate a new column named "year" which equals 1980 for all rows. Assign the imported data as the name **prob031**.
+
+2\. import <https://uofi.box.com/shared/static/oyozldxdjf5127irsy997vgjwaimlsix.txt>, rename the columns such that "name" is the first column, "assigned_sex" is the second column, and "relative_frequency" is the third column, and mutate a new column named "year" which equals 1990 for all rows. Assign the imported data as the name **prob032**.
+
+3\. import <https://uofi.box.com/shared/static/n55iwx8odeq4dyj85ssh4k7pxwqp0m3n.txt>, rename the columns such that "name" is the first column, "assigned_sex" is the second column, and "relative_frequency" is the third column, and mutate a new column named "year" which equals 2000 for all rows. Assign the imported data as the name **prob033**.
+
+4\. import <https://uofi.box.com/shared/static/ztrgpm66g93jibbph5kqm0v4ba01io4v.txt>, rename the columns such that "name" is the first column, "assigned_sex" is the second column, and "relative_frequency" is the third column, and mutate a new column named "year" which equals 2010 for all rows. Assign the imported data as the name **prob034**.
+
+5\. import <https://uofi.box.com/shared/static/gmirvfd1ufmh1hvzbp1x326pyjhv5d5h.txt>, rename the columns such that "name" is the first column, "assigned_sex" is the second column, and "relative_frequency" is the third column, and mutate a new column named "year" which equals 2020 for all rows. Assign the imported data as the name **prob035**.
+
+6\. combine the five data frames together such that they are stacked on top of each other; binding the rows together. Assign the combined data as the name **prob03**.
+
+**Description of Popular Names Datasets:** Each dataset contains over 19000 observations and 3 columns prior to mutating. The combined data contains 139567 and 4 columns. The columns represent (from left to right): name, assigned_sex, relative_frequency, and year. Soon after a child is born in the US, the parent(s) file for a Social Security card. These baby names come from those Social Security records. This data does not include baby names with relative frequencies less than 5. The original source is the Social Security Administration.
+
+**Answer:**
+
+```{r}
+library(tidyverse)
+
+prob031 <- read_csv("https://uofi.box.com/shared/static/yiuk2qvdcuf2ax7k8i5bc1xia2ytsbua.txt", 
+    col_names = FALSE)%>%
+  rename(name = X1, assigned_sex = X2, relative_frequency = X3)%>%
+  mutate(year = 1980)
+
+prob032 <- read_csv("https://uofi.box.com/shared/static/oyozldxdjf5127irsy997vgjwaimlsix.txt", 
+    col_names = FALSE)%>%
+  rename(name = X1, assigned_sex = X2, relative_frequency = X3)%>%
+  mutate(year = 1990)
+
+
+prob033 <- read_csv("https://uofi.box.com/shared/static/n55iwx8odeq4dyj85ssh4k7pxwqp0m3n.txt", 
+    col_names = FALSE)%>%
+  rename(name = X1, assigned_sex = X2, relative_frequency = X3)%>%
+  mutate(year = 2000)
+
+prob034 <- read_csv("https://uofi.box.com/shared/static/ztrgpm66g93jibbph5kqm0v4ba01io4v.txt", 
+    col_names = FALSE)%>%
+  rename(name = X1, assigned_sex = X2, relative_frequency = X3)%>%
+  mutate(year = 2010)
+
+prob035 <- read_csv("https://uofi.box.com/shared/static/gmirvfd1ufmh1hvzbp1x326pyjhv5d5h.txt", 
+    col_names = FALSE)%>%
+  rename(name = X1, assigned_sex = X2, relative_frequency = X3)%>%
+  mutate(year = 2020)
+
+prob03 <- rbind(prob031, prob032, prob033, prob034, prob035)
+```
+
+
+------------------------------------------------------------------------
+
+**#4**
+
+**Problem:** Using the object **prob03** from the previous problem, complete the following data wrangling task(s) such that the final resulting data frame or tibble is stored and named **prob04**.
+
+**Task(s):** 
+
+1. Filter the data to show the 10 highest relative frequency names per year, regardless of gender. 
+
+2. Mutate a new column called "name_new" that contains names that are not bound or conforming to a specific gender, using the creative strategy of 'brainstorming'. Punctuation is not allowed in the values of the new names. New names must be in character format.
+
+3. Mutate a new column called "vowel_count" which represents a numeric-formatted count of the number of vowels for each new name of "name_new". Vowels are A, E, I, O, and U.
+
+4. Arrange the data in descending order of vowel_count. 
+
+5. Ungroup the data.
+
+6. Select the following columns: name_new, vowel_count.
+
+The resulting data frame or tibble should be stored and named **prob04**.
+
+**Answer:**
+
+```{r}
+prob041 <- prob03%>%
+  filter(year == 1980)%>%
+  arrange(desc(relative_frequency))%>%
+  head(n=10)
+
+prob042 <- prob03%>%
+  filter(year == 1990)%>%
+  arrange(desc(relative_frequency))%>%
+  head(n=10)
+
+prob043 <- prob03%>%
+  filter(year == 2000)%>%
+  arrange(desc(relative_frequency))%>%
+  head(n=10)
+
+prob044 <- prob03%>%
+  filter(year == 2010)%>%
+  arrange(desc(relative_frequency))%>%
+  head(n=10)
+
+prob045 <- prob03%>%
+  filter(year == 2020)%>%
+  arrange(desc(relative_frequency))%>%
+  head(n=10)
+
+prob04 <- rbind(prob041, prob042, prob043, prob044, prob045)%>%
+  mutate(prob04_new = tolower(str_extract(name, "[AEIOUaeiou]")))%>%
+  mutate(name_new = paste0(name, prob04_new))%>%
+  mutate(vowel_count = (str_count(name_new, "[AEIOUaeiou]")))%>%
+  arrange(desc(vowel_count))%>%
+  ungroup()%>%
+  select(name_new, vowel_count)
+```

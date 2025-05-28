@@ -1,0 +1,117 @@
+
+
+# STAT 440 Statistical Data Management
+
+## Week 07 Lab
+
+### Only the .Rmd file must be submitted by the end of class. Any lab submitted after that time will not be accepted; resulting in 0 points earned.
+
+#### This lab file should be saved as lab01-week07-sX-fri-netid.Rmd in the labs directory in your individual student repo (on the main branch), where you replace "netid" with your netid.
+
+------------------------------------------------------------------------
+
+**#1**
+
+**Problem:** Determine whether the statement below is TRUE or FALSE, then create an R vector named **prob01** with the assigned logical value of TRUE or FALSE. For example, `prob01 <- TRUE`. This R code should be written in the code chunk of the **Answer** section below. This code chunk should be executable and able to be evaluated.
+
+**Statement**: In R's sqldf package, the `HAVING` function counts the number of categories in a categorical variable by default.
+
+**Answer:**
+
+```{r}
+prob01 <- FALSE
+```
+
+------------------------------------------------------------------------
+
+**#2**
+
+**Problem:** Using R's tidyverse, import the NBA Player Stats for 2024 Season Data using its URL <https://uofi.box.com/shared/static/hrjfxidq6ivkc96xy9y2htajm6yfz2ig.txt> and assign this imported data as the name **prob02**.
+
+The structure (`str()`) of your **prob02** should match the following data descriptions.
+
+**Data Description for import the NBA Player Stats for 2024 Season Data:** The data contains a total of 736 observations and 32 columns. The observations are professional basketball players in the National Basketball Association (NBA) and their season statistics per the number of games played for the 2024 season. There are 573 unique players. The 32 columns are: Rk, Player, Age, Team, Pos, G, GS, MP, FG, FGA, FG%, 3P, 3PA, 3P%, 2P, 2PA, 2P%, eFG%, FT, FTA, FT%, ORB, DRB, TRB, AST, STL, BLK, TOV, PF, PTS, Awards, Player-additional. The original data source is Sports Reference <https://www.basketball-reference.com/leagues/NBA_2024_per_game.html>.
+
+Also, see the Data Key for an explanation of the basketball statistics values: <https://uofi.box.com/shared/static/d6alzaj0lll7j2f1smnn7tn6itll6uor.pdf>.
+
+**Answer:**
+
+```{r}
+library(tidyverse)
+prob02 <- read_csv("https://uofi.box.com/shared/static/hrjfxidq6ivkc96xy9y2htajm6yfz2ig.txt")
+str(prob02)
+```
+
+------------------------------------------------------------------------
+
+**#3**
+
+**Problem:** Using R's sqldf package and the object **prob02** from the problem above, employ SQL-specific data wrangling task(s) with **prob02** such that the final resulting data frame is stored and named **prob03**:
+
+**Task(s):**
+
+-   Filter the data to remove NA or missing values from the Team column
+-   Filter the data to keep only Team values that begin with a letter of the alphabet
+-   Mutate the data with the following 17 new columns (double type) that determine the team totals:
+    -   "team_FG" = summarized total FG per team
+    -   "team_FGA" = summarized total FGA per team
+    -   "team_3P" = summarized total 3P per team
+    -   "team_3PA" = summarized total 3PA per team
+    -   "team_2P" = summarized total 2P per team
+    -   "team_2PA" = summarized total 2PA per team
+    -   "team_FT" = summarized total FT per team
+    -   "team_FTA" = summarized total FTA per team
+    -   "team_ORB" = summarized total ORB per team
+    -   "team_DRB" = summarized total DRB per team
+    -   "team_TRB" = summarized total TRB per team
+    -   "team_AST" = summarized total AST per team
+    -   "team_STL" = summarized total STL per team
+    -   "team_BLK" = summarized total BLK per team
+    -   "team_TOV" = summarized total TOV per team
+    -   "team_PF" = summarized total PF per team
+    -   "team_PTS" = summarized total PTS per team
+-   Select the following columns organized as such: Team, team_FG, team_FGA, team_3P, team_3PA, team_2P, team_2PA, team_FT, team_FTA, team_ORB, team_DRB, team_TRB, team_AST, team_STL, team_BLK, team_TOV, team_PF, team_PTS
+-   Arrange the data in alphabetical order of Team.
+-   Keep the only distinct Team values while also keeping all other columns
+
+The resulting data frame should be stored as **prob03** and must contain 30 rows. SQL must be used on this problem. Non-SQL data wrangling methods are prohibited.
+
+**Answer:**
+
+```{r}
+library(sqldf)
+prob03 <- sqldf("
+                SELECT DISTINCT(Team), SUM(FG) AS team_FG, sum(FGA) AS team_FGA, sum(`3P`) AS team_3P, sum(`3PA`) as team_3PA, sum(`2P`) as team_2P, sum(`2PA`) as team_2PA, sum(FT) as team_FT, sum(FTA) as team_FTA, sum(ORB) as team_ORB, sum(DRB) as team_DRB, sum(TRB) as team_TRB, sum(AST) as team_AST, sum(STL) as team_STL, sum(BLK) as team_BLK, sum(TOV) as team_TOV, sum(PF) as team_PF, sum(PTS) as team_PTS
+                FROM prob02
+                WHERE Team IS NOT NULL AND Team <> '2TM' AND Team <> '3TM'
+                GROUP BY Team
+                ORDER BY Team
+                ")
+prob03
+```
+
+------------------------------------------------------------------------
+
+**#4**
+
+**Problem:** Using R's sqldf package and the object **prob02** from above, employ SQL-specific data wrangling to create a data frame that contains the appropriate data stored and named as **prob04** that answers the question:
+
+**Question:** Among the players who have a suffix in their name and who are not on teams named "2TM" or "3TM", who are in the top ten in highest APER (adhoc player efficiency rating)? APER is a numeric column (double type) computed as $\frac{1}{\textrm{MP}}\times \bigg(`3P`-FT+[0.5\times FT \times (2-(AST/(3\times FG)))]+[FG\times (2-(AST/FG))]+2\times AST/3 + DRB/TRB \times (2\times ORB + BLK - FTA + FT -FGA + FG -TRB) - TOV - ORB + STL + TRB \bigg)$. A suffix can be any of the following: "Jr.", "Sr.", "II", "III", "IV"
+
+The resulting data frame should be stored as **prob04**, arranged in descending order of APER, and it should contain the following columns named and organized in this fashion: Player, Team, Pos, APER. SQL must be used on this problem. Non-SQL data wrangling methods are prohibited.
+
+**Answer:**
+
+```{r}
+library(sqldf)
+prob04 <- sqldf("
+                SELECT Player, Team, Pos, (1/MP)* (`3P`-FT*(0.5*FT*(2-(AST/(3*FG))))+(FG*(2-(AST/FG)))+2*AST/3+DRB/TRB*(2*ORB+BLK-FTA+FT-FGA+FG-TRB)-TOV-ORB+STL+TRB) AS APER
+                FROM prob02
+                WHERE Team <> '2TM' AND Team <> '3TM'
+                AND Player LIKE '%Jr.' OR Player LIKE '%Sr.' OR Player LIKE '%II' OR Player LIKE '%III' OR Player LIKE '%IV'
+                ORDER BY APER DESC
+                LIMIT 10
+                ")
+prob04
+```
+

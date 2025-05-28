@@ -1,0 +1,116 @@
+# STAT 440 Statistical Data Management
+
+## Week 13 Lab
+
+### Only the .Rmd file must be submitted by the end of class. Any lab submitted after that time will not be accepted; resulting in 0 points earned.
+
+#### This lab file should be saved as lab02-week13-sX-wed-netid.Rmd in the labs directory in your individual student repo (on the main branch), where you replace "netid" with your netid.
+
+------------------------------------------------------------------------
+
+**#1**
+
+**Problem:** Determine whether the statement below is TRUE or FALSE, then create an R vector named **prob01** with the assigned logical value of TRUE or FALSE. For example, `prob01 <- TRUE`. This R code should be written in the code chunk of the **Answer** section below. This code chunk should be executable and able to be evaluated.
+
+**Statement**: The `renderPlot()` is a type of reactivity for creating data visualizations in a Shiny app.
+
+**Answer:**
+
+```{r}
+prob01 <- TRUE
+```
+
+------------------------------------------------------------------------
+
+**#2**
+
+**Problem:** Choose only one of the letters that represents the most correct choice. Then, create an R vector named **prob02** with the letter(s) chosen in quotes. For example, `prob02 <- "f"`. This R code should be written in the code chunk of the **Answer** section below. This code chunk should be executable and able to be evaluated.
+
+**Question**: Which of the following are not output designs available to use in a Shiny app?\
+a. dataTableOutput()
+
+b.  imageOutput()
+
+c.  textOutput()
+
+d.  uiInput()
+
+**Answer:**
+
+```{r}
+prob02 <- "d"
+
+```
+
+------------------------------------------------------------------------
+
+**#3**
+
+**Problem:** Using R, import the Urbana Incidents and Arrests Data using the URL <https://uofi.box.com/shared/static/l70pm29neg8o3jjdvu79x4n46if1php9.csv>, and assign the imported dataset as the name **prob03**. The structure (`str()`) the data should match the following data description.
+
+**Data Description for Urbana Incidents and Arrests Data**: The contains 330446 observations and 15 columns. The observations are incidents in which the officers of the Urbana Police Department responded. Some incidents are labeled as arrests, in which someone is arrested, while other incidents are labeled as incidents. The columns are: incident_number, date_occurred, time_occurred, year_occurred, month_occurred, all_incident_crimes, latitude, longitude, date_of_arrest, year_of_arrest, month_of_arrest, arrestee_race, arrest_resolution, all_arrest_crimes, arrest_or_incident. The columns with arrest information have the string "arrest" in the name. All other columns are for incident information. The original source is the City of Urbana.
+
+**Answer:**
+
+```{r}
+library(tidyverse)
+prob03 <- read_csv("https://uofi.box.com/shared/static/l70pm29neg8o3jjdvu79x4n46if1php9.csv", 
+    col_types = cols(date_occurred = col_date(format = "%Y-%m-%d"), 
+        time_occurred = col_time(format = "%H:%M:%S"), 
+        date_of_arrest = col_date(format = "%Y-%m-%d")))
+```
+
+------------------------------------------------------------------------
+
+**#4**
+
+**Problem:** Using R and the data in prob03 in the previous problem, create a Shiny app based on the following requirement(s). Apps will be graded by Instructor, but need to be reproducible.
+
+**Requirements:**
+
+-   Title: "Seasonality of Police Incidents in Urbana"
+-   Two inputs:
+    -   selectInput to choose year one of year occurred (1988-2023)
+    -   selectInput to choose year two of year occurred (1988-2023)
+-   One output:
+    -   a line plot displaying the total of number of incidents per month for year one in orange color as a solid line and year two in blue color as a dashed line.
+        -   The months must increase from left to right in chronological order.
+
+**Answer:**
+
+```{r}
+library(ggplot2)
+library(shiny)
+df <- prob03 %>%
+  filter(year_occurred >= 1988) %>%
+  group_by(year_occurred, month_occurred) %>%
+  summarise(incidents = n(), .groups = "drop")
+
+ui <- fluidPage(
+  titlePanel("Seasonality of Police Incidents in Urbana"),
+  
+  selectInput(inputId = "year_one",
+              label = "Select year one",
+              choices = unique(df$year_occurred)),
+  
+  selectInput(inputId = "year_two",
+              label = "Select year two",
+              choices = unique(df$year_occurred)),
+  
+  plotOutput("distPlot")
+)
+
+server <- function(input, output) {
+  output$distPlot <- renderPlot({
+    df1 <- df %>% filter(year_occurred == input$year_one)
+    df2 <- df %>% filter(year_occurred == input$year_two)
+    
+    ggplot() +
+      geom_line(data = df1, aes(x = month_occurred, y = incidents), color = "orange") +
+      geom_line(data = df2, aes(x = month_occurred, y = incidents), color = "blue") 
+  })
+}
+
+shinyApp(ui = ui, server = server)
+
+```

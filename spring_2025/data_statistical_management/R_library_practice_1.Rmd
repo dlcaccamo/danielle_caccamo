@@ -1,0 +1,72 @@
+# STAT 440 Statistical Data Management
+
+## Week 03 Lab Section sX
+
+### Only the .Rmd file must be submitted by the end of class. Any lab submitted after that time will not be accepted; resulting in 0 points earned.
+
+#### This lab file should be saved as lab00-week03-sX-fri-netid.Rmd in the labs directory in your individual student repo (on the main branch), where you replace "netid" with your netid.
+
+------------------------------------------------------------------------
+
+**Problem:** Determine whether the statement below is TRUE or FALSE, then create an R vector named **prob01** with the assigned logical value of TRUE or FALSE. For example, `prob01 <- TRUE`. This R code should be written in the code chunk of the **Answer** section below. This code chunk should be executable and able to be evaluated.
+
+-   Statement: In R, matrices are lists.
+
+**Answer:**
+
+```{r}
+prob01 <- FALSE
+```
+
+------------------------------------------------------------------------
+
+**#2**
+
+**Problem:** Determine whether the statement below is TRUE or FALSE, then create an R vector named **prob02** with the assigned logical value of TRUE or FALSE. For example, `prob02 <- TRUE`. This R code should be written in the code chunk of the **Answer** section below. This code chunk should be executable and able to be evaluated.
+
+-   Statement: In R, data frames are lists.
+
+**Answer:**
+
+```{r}
+prob02 <- TRUE 
+```
+
+------------------------------------------------------------------------
+
+**#3**
+
+**Problem:** Using R, import the Champaign County Sheriff Office & Jail Data using its data URL <https://uofi.box.com/shared/static/mz7cefd4z0agdnhamvayq48ehlb0c3r6.dsv>, ensure any date or time columns are formatted as date or time, respectively, and assign this imported data as the name **prob03**. The structure (`str()`) of your **prob03** data should match the data description below.
+
+-   Data description for Champaign County Sheriff Office & Jail Data: The dataset contains 11082 observations and 40 columns for individuals who were booked into jail in Champaign County Jail. The individuals are identifiable based on personal identity, and they are given unique jacket numbers. Some rows in the data appear more than once because of multiple crimes being assigned to one person. But there is also the possibility of there being recidivists. A recidivist is a person who goes to jail repeatedly (more than one datetime). The demographics of the people, reasons for being booked, and crime code are also given in the data. The original source is the Champaign County Sheriff Office & Jail (CCSO).
+
+**Answer:**
+
+```{r}
+library(tidyverse)
+prob03 <- read_delim("https://uofi.box.com/shared/static/mz7cefd4z0agdnhamvayq48ehlb0c3r6.dsv", 
+    delim = "&", escape_double = FALSE, col_types = cols(booking_date = col_date(format = "%m/%d/%Y"), 
+        booking_time = col_time(format = "%H:%M:%S"), 
+        released_date = col_date(format = "%m/%d/%Y"), 
+        released_time = col_time(format = "%H:%M:%S")), 
+    trim_ws = TRUE)
+str(prob03)
+```
+
+------------------------------------------------------------------------
+
+**#4**
+
+**Problem:** Using R's tidyverse and openxlsx, import the third sheet of Highest Grossing Box Office Quarterly Data using its URL <https://uofi.box.com/shared/static/0xho42d76rdr95ozv4dmrt35lug0x3vb.xlsx> and assign this imported data as the name **prob04**.
+
+The structure (`str()`) of your **prob04** should match the following data description.
+
+**Data Description for Highest Grossing Box Office Quarterly Data:** The data (a .xlsx file) has four sheets representing the four quarters: Q1, Q2, Q3, and Q4. The dimensions of each sheet are: (Q1) 47 rows and 4 columns, (Q2) 49 rows and 4 columns, (Q3) 49 rows and 4 columns, and (Q4) 49 rows and 4 columns. Each row represents a film which grossed the highest dollar amount in that quarter for each year among domestic box offices. The column names are year, releases, #1 release, and gross. The original data source is Box Office Mojo, an IMDb company.
+
+**Answer:**
+
+```{r}
+library(openxlsx)
+prob04 <- read.xlsx("https://uofi.box.com/shared/static/0xho42d76rdr95ozv4dmrt35lug0x3vb.xlsx", sheet = 3)
+str(prob04)
+```
